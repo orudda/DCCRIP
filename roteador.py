@@ -3,7 +3,9 @@ import socket
 import json
 import threading
 
-
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Classe que encapsula infos dos roteadores conhecidos
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Router:
     def __init__(self, name, ip, port, dist, next):
         self.enlace  = (name, ip, port)
@@ -28,7 +30,9 @@ class Router:
     def set_next(self, next):
         self.next = next
 
-
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Variaveis globais importantes
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++
 mapa = []
 flag = False
 finish = False
@@ -186,32 +190,29 @@ def receber_msgs_roteadores(msg, addr):
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Main e Loop de recebimento de novas conexões
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++
-HOST = sys.argv[1]
-PORT = int(sys.argv[2])
+if __name__ == "__main__":
+    HOST = sys.argv[1]
+    PORT = int(sys.argv[2])
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-hostname=socket.gethostname()   
-IPAddr=socket.gethostbyname(hostname)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    hostname=socket.gethostname()   
+    IPAddr=socket.gethostbyname(hostname)
 
-mapa.append(Router(HOST,IPAddr, PORT, 0, HOST)) 
+    mapa.append(Router(HOST,IPAddr, PORT, 0, HOST)) 
 
-s.bind((IPAddr, PORT))
+    s.bind((IPAddr, PORT))
 
-try:
-    while not(finish):
-        msg, addr = s.recvfrom(1024)
-        msg = json.loads(msg.decode('utf-8'))
-        if int(msg["id"]) < 7:
-            t0 = threading.Thread(target = receber_msgs_interface, args=[msg])
-            t0.daemon = True
-            t0.start()
-        elif flag:
-            t1 = threading.Thread(target = receber_msgs_roteadores, args=[msg, addr])
-            t1.daemon = True
-            t1.start()      
-except:
-    print("Error in main loop")   
-
-
-
-    
+    try:
+        while not(finish):
+            msg, addr = s.recvfrom(1024)
+            msg = json.loads(msg.decode('utf-8'))
+            if int(msg["id"]) < 7:
+                t0 = threading.Thread(target = receber_msgs_interface, args=[msg])
+                t0.daemon = True
+                t0.start()
+            elif flag:
+                t1 = threading.Thread(target = receber_msgs_roteadores, args=[msg, addr])
+                t1.daemon = True
+                t1.start()      
+    except:
+        print("Error in main loop")   
